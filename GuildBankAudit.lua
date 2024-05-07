@@ -13,6 +13,7 @@ EventFrame:RegisterEvent("PLAYER_LOGOUT")
 function eventParse(self, event, arg1)
   if (event == "ADDON_LOADED") then
     LastGoldCheck = _G.LastGoldCheck
+    createOptionsPanel()
     --check for elvui
     if (IsAddOnLoaded("ElvUI")) then
       ElvUILoaded = true
@@ -40,6 +41,8 @@ function SlashCmdList.GUILDBANKAUDIT(cmd, editbox)
     GetGBAFrame(scanTab())
   elseif request == "money" then
     GetGBAFrame(getMoneyLog())
+  elseif request == "options" then
+    InterfaceOptionsFrame_OpenToCategory(eventFrame.OptionsPanel)
   elseif request  == "help" then
     printHelp()
   elseif request == "bugged" then
@@ -300,6 +303,14 @@ function createButtons()
     buttonFrame.ScanMoney:SetTemplate(nil, true)
   end
   buttonFrame.ScanMoney:SetFrameLevel(4)
+end
+
+--create the options panel within the default interface menu
+function createOptionsPanel()
+  eventFrame.OptionsPanel = CreateFrame("Frame")
+  eventFrame.OptionsPanel.name = "Guild Bank Audit"
+
+  InterfaceOptions_AddCategory(eventFrame.OptionsPanel)
 end
 
 -- create the output frame
