@@ -315,7 +315,61 @@ function createOptionsPanel()
   eventFrame.OptionsPanel = CreateFrame("Frame")
   eventFrame.OptionsPanel.name = "Guild Bank Audit"
 
+  --option1
+  local option1 = CreateFrame("Frame", "Option1Dropdown", eventFrame.OptionsPanel, "UIDropDownMenuTemplate")
+  option1:SetPoint("TOPLEFT")
+  UIDropDownMenu_SetWidth(option1, 200)
+  UIDropDownMenu_Initialize(option1, OptionsPanelDropdownMenu)
+  UIDropDownMenu_SetText(option1, "Replace me with DB options later")
+  --option2
+  local option2 = CreateFrame("Frame", "Option2Dropdown", eventFrame.OptionsPanel, "UIDropDownMenuTemplate")
+  option2:SetPoint("TOPLEFT", option1, 0, -30)
+  UIDropDownMenu_SetWidth(option2, 200)
+  UIDropDownMenu_Initialize(option2, OptionsPanelDropdownMenu)
+  UIDropDownMenu_SetText(option2, "Replace me with DB options later")
+  --option3
+  local option3 = CreateFrame("Frame", "Option3Dropdown", eventFrame.OptionsPanel, "UIDropDownMenuTemplate")
+  option3:SetPoint("TOPLEFT", option2, 0, -30)
+  UIDropDownMenu_SetWidth(option3, 200)
+  UIDropDownMenu_Initialize(option3, OptionsPanelDropdownMenu)
+  UIDropDownMenu_SetText(option3, "Replace me with DB options later")
+  --option4
+  local option4 = CreateFrame("Frame", "Option4Dropdown", eventFrame.OptionsPanel, "UIDropDownMenuTemplate")
+  option4:SetPoint("TOPLEFT", option3, 0, -30)
+  UIDropDownMenu_SetWidth(option4, 200)
+  UIDropDownMenu_Initialize(option4, OptionsPanelDropdownMenu)
+  UIDropDownMenu_SetText(option4, "Replace me with DB options later")
+  --money img toggle
+  local moneyCheck = CreateFrame("CheckButton", "OptionsMoneyCheckbox", eventFrame.OptionsPanel, "InterfaceOptionsCheckButtonTemplate")
+  moneyCheck:SetPoint("TOPLEFT",option4, 15, -30)
+  moneyCheck.Text:SetText("Display Money Scan Gold Icons")
+  moneyCheck:HookScript("OnClick", function(_, btn, down) end)
+
   InterfaceOptions_AddCategory(eventFrame.OptionsPanel)
+end
+
+--dropdown menu initializer function
+function OptionsPanelDropdownMenu(frame, level, menuList)
+  local menuInfo = UIDropDownMenu_CreateInfo()
+  menuInfo.func = OptionsPanelDropdownOnClick
+
+  menuInfo.text, menuInfo.arg1 = "Test Option 1", 1
+  UIDropDownMenu_AddButton(menuInfo)
+  menuInfo.text, menuInfo.arg1 = "Test Option 2", 2
+  UIDropDownMenu_AddButton(menuInfo)
+  menuInfo.text, menuInfo.arg1 = "Test Option 3", 3
+  UIDropDownMenu_AddButton(menuInfo)
+  menuInfo.text, menuInfo.arg1 = "Test Option 4", 4
+  UIDropDownMenu_AddButton(menuInfo)
+end
+
+--click handler for options dropdowns
+function OptionsPanelDropdownOnClick(self, arg1, arg2, checked)
+  if arg1 == 1 then
+  elseif arg1 == 2 then
+  elseif arg1 == 3 then
+  elseif arg1 == 4 then
+  end
 end
 
 -- create the output frame
