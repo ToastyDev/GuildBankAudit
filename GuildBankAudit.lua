@@ -9,6 +9,7 @@ local ElvUILoaded = false
 local eventFrame = CreateFrame("Frame", "EventFrame")
 EventFrame:RegisterEvent("ADDON_LOADED")
 EventFrame:RegisterEvent("PLAYER_LOGOUT")
+EventFrame:RegisterEvent("PLAYER_INTERACTION_MANAGER_FRAME_SHOW")
 
 function eventParse(self, event, arg1)
   if (event == "ADDON_LOADED") then
@@ -18,8 +19,11 @@ function eventParse(self, event, arg1)
     if (IsAddOnLoaded("ElvUI")) then
       ElvUILoaded = true
     end
-    createButtons()
     EventFrame:UnregisterEvent("ADDON_LOADED")
+  elseif (event == "PLAYER_INTERACTION_MANAGER_FRAME_SHOW") then
+    if (arg1 == 10) then
+      createButtons()
+    end
   elseif (event == "PLAYER_LOGOUT") then
     _G.LastGoldCheck = LastGoldCheck
   end

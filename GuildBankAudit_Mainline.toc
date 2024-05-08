@@ -4,7 +4,7 @@
 ## Author: ToastyDev
 ## Version: 1.3
 ## SavedVariablesPerCharacter: LastGoldCheck
-## LoadOnDemand: 1
-## LoadWith: Blizzard_GuildBankUI
+### LoadOnDemand: 1
+### LoadWith: Blizzard_GuildBankUI
 
 GuildBankAudit.lua
