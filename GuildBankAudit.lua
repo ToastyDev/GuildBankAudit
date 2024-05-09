@@ -316,29 +316,49 @@ function createOptionsPanel()
   eventFrame.OptionsPanel.name = "Guild Bank Audit"
 
   --option1
+  local option1Text = eventFrame.OptionsPanel:CreateFontString("Option1Header", "OVERLAY", "GameFontNormalLarge")
+  option1Text:SetPoint("TOPLEFT", 15, -5)
+  option1Text:SetText("Printout Slot 1")
+
   local option1 = CreateFrame("Frame", "Option1Dropdown", eventFrame.OptionsPanel, "UIDropDownMenuTemplate")
-  option1:SetPoint("TOPLEFT")
+  option1:SetPoint("TOPLEFT", option1Text, 0, -25)
   UIDropDownMenu_SetWidth(option1, 200)
   UIDropDownMenu_Initialize(option1, OptionsPanelDropdownMenu)
   UIDropDownMenu_SetText(option1, "Replace me with DB options later")
+
   --option2
+  local option2Text = eventFrame.OptionsPanel:CreateFontString("Option2Header", "OVERLAY", "GameFontNormalLarge")
+  option2Text:SetPoint("TOPLEFT", option1, 0, -25)
+  option2Text:SetText("Printout Slot 2")
+
   local option2 = CreateFrame("Frame", "Option2Dropdown", eventFrame.OptionsPanel, "UIDropDownMenuTemplate")
-  option2:SetPoint("TOPLEFT", option1, 0, -30)
+  option2:SetPoint("TOPLEFT", option2Text, 0, -25)
   UIDropDownMenu_SetWidth(option2, 200)
   UIDropDownMenu_Initialize(option2, OptionsPanelDropdownMenu)
   UIDropDownMenu_SetText(option2, "Replace me with DB options later")
+
   --option3
+  local option3Text = eventFrame.OptionsPanel:CreateFontString("Option3Header", "OVERLAY", "GameFontNormalLarge")
+  option3Text:SetPoint("TOPLEFT", option2, 0, -25)
+  option3Text:SetText("Printout Slot 3")
+
   local option3 = CreateFrame("Frame", "Option3Dropdown", eventFrame.OptionsPanel, "UIDropDownMenuTemplate")
-  option3:SetPoint("TOPLEFT", option2, 0, -30)
+  option3:SetPoint("TOPLEFT", option3Text, 0, -25)
   UIDropDownMenu_SetWidth(option3, 200)
   UIDropDownMenu_Initialize(option3, OptionsPanelDropdownMenu)
   UIDropDownMenu_SetText(option3, "Replace me with DB options later")
+
   --option4
+  local option4Text = eventFrame.OptionsPanel:CreateFontString("Option4Header", "OVERLAY", "GameFontNormalLarge")
+  option4Text:SetPoint("TOPLEFT", option3, 0, -25)
+  option4Text:SetText("Printout Slot 4")
+
   local option4 = CreateFrame("Frame", "Option4Dropdown", eventFrame.OptionsPanel, "UIDropDownMenuTemplate")
-  option4:SetPoint("TOPLEFT", option3, 0, -30)
+  option4:SetPoint("TOPLEFT", option4Text, 0, -25)
   UIDropDownMenu_SetWidth(option4, 200)
   UIDropDownMenu_Initialize(option4, OptionsPanelDropdownMenu)
   UIDropDownMenu_SetText(option4, "Replace me with DB options later")
+
   --money img toggle
   local moneyCheck = CreateFrame("CheckButton", "OptionsMoneyCheckbox", eventFrame.OptionsPanel, "InterfaceOptionsCheckButtonTemplate")
   moneyCheck:SetPoint("TOPLEFT",option4, 15, -30)
