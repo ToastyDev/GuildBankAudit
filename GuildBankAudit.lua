@@ -3,6 +3,7 @@ local ItemsPerTab = 98
 local SavedItems = {}
 local SavedItemCounts = {}
 local LastGoldCheck
+local defaultOptions = {output1 = "test 1", output2 = "test 2", output3 = "test 3", output4 = "test 4", moneyImgToggle = true,}
 local ElvUILoaded = false
 
 --event handling frame to make sure saved variables load and save properly
@@ -14,6 +15,8 @@ EventFrame:RegisterEvent("PLAYER_INTERACTION_MANAGER_FRAME_SHOW")
 function eventParse(self, event, arg1)
   if (event == "ADDON_LOADED") then
     LastGoldCheck = _G.LastGoldCheck
+    OptionsDB = _G.OptionsDB or CopyTable(defaultOptions)
+    self.db = OptionsDB
     createOptionsPanel()
     --check for elvui
     if (IsAddOnLoaded("ElvUI")) then
@@ -26,6 +29,7 @@ function eventParse(self, event, arg1)
     end
   elseif (event == "PLAYER_LOGOUT") then
     _G.LastGoldCheck = LastGoldCheck
+    _G.OptionsDB = OptionsDB
   end
 end
 
@@ -324,7 +328,7 @@ function createOptionsPanel()
   option1:SetPoint("TOPLEFT", option1Text, 0, -25)
   UIDropDownMenu_SetWidth(option1, 200)
   UIDropDownMenu_Initialize(option1, OptionsPanelDropdownMenu)
-  UIDropDownMenu_SetText(option1, "Replace me with DB options later")
+  UIDropDownMenu_SetText(option1, OptionsDB.option1)
 
   --option2
   local option2Text = eventFrame.OptionsPanel:CreateFontString("Option2Header", "OVERLAY", "GameFontNormalLarge")
@@ -335,7 +339,7 @@ function createOptionsPanel()
   option2:SetPoint("TOPLEFT", option2Text, 0, -25)
   UIDropDownMenu_SetWidth(option2, 200)
   UIDropDownMenu_Initialize(option2, OptionsPanelDropdownMenu)
-  UIDropDownMenu_SetText(option2, "Replace me with DB options later")
+  UIDropDownMenu_SetText(option2, output2)
 
   --option3
   local option3Text = eventFrame.OptionsPanel:CreateFontString("Option3Header", "OVERLAY", "GameFontNormalLarge")
@@ -346,7 +350,7 @@ function createOptionsPanel()
   option3:SetPoint("TOPLEFT", option3Text, 0, -25)
   UIDropDownMenu_SetWidth(option3, 200)
   UIDropDownMenu_Initialize(option3, OptionsPanelDropdownMenu)
-  UIDropDownMenu_SetText(option3, "Replace me with DB options later")
+  UIDropDownMenu_SetText(option3, output3)
 
   --option4
   local option4Text = eventFrame.OptionsPanel:CreateFontString("Option4Header", "OVERLAY", "GameFontNormalLarge")
@@ -357,13 +361,14 @@ function createOptionsPanel()
   option4:SetPoint("TOPLEFT", option4Text, 0, -25)
   UIDropDownMenu_SetWidth(option4, 200)
   UIDropDownMenu_Initialize(option4, OptionsPanelDropdownMenu)
-  UIDropDownMenu_SetText(option4, "Replace me with DB options later")
+  UIDropDownMenu_SetText(option4, output4)
 
   --money img toggle
   local moneyCheck = CreateFrame("CheckButton", "OptionsMoneyCheckbox", eventFrame.OptionsPanel, "InterfaceOptionsCheckButtonTemplate")
   moneyCheck:SetPoint("TOPLEFT",option4, 15, -30)
   moneyCheck.Text:SetText("Display Money Scan Gold Icons")
-  moneyCheck:HookScript("OnClick", function(_, btn, down) end)
+  moneyCheck:HookScript("OnClick", function(_, btn, down) OptionsDB.moneyImgToggle = moneyCheck:GetChecked() end)
+
 
   InterfaceOptions_AddCategory(eventFrame.OptionsPanel)
 end
