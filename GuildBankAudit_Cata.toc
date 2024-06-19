@@ -3,7 +3,7 @@
 ## Notes: Exports guild bank information for external management.
 ## Author: ToastyDev
 ## Version: 1.3
-## SavedVariablesPerCharacter: LastGoldCheck, OptionsDB
+## SavedVariablesPerCharacter: LastGoldCheck, GBAOptionsDB
 ### LoadOnDemand: 1
 ### LoadWith: Blizzard_GuildBankUI
 

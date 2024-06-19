@@ -3,37 +3,51 @@ local ItemsPerTab = 98
 local SavedItems = {}
 local SavedItemCounts = {}
 local LastGoldCheck
-local defaultOptions = {output1 = "test 1", output2 = "test 2", output3 = "test 3", output4 = "test 4", moneyImgToggle = true,}
+local defaultOptions = {output1 = "test 1", output2 = "test 2", output3 = "test 3", output4 = "test 4", moneyImgToggle = false,}
 local ElvUILoaded = false
 
 --event handling frame to make sure saved variables load and save properly
-local eventFrame = CreateFrame("Frame", "EventFrame")
+eventFrame = CreateFrame("Frame", "EventFrame")
+function EventFrame:OnEvent(event, ...)
+  self[event](self, event, ...)
+end
+EventFrame:SetScript("OnEvent", EventFrame.OnEvent)
+
 EventFrame:RegisterEvent("ADDON_LOADED")
 EventFrame:RegisterEvent("PLAYER_LOGOUT")
 EventFrame:RegisterEvent("PLAYER_INTERACTION_MANAGER_FRAME_SHOW")
 
-function eventParse(self, event, arg1)
-  if (event == "ADDON_LOADED") then
+function EventFrame:ADDON_LOADED(event, addonName)
+  if addonName == "GuildBankAudit" then
+    --load current options
+    GBAOptionsDB = GBAOptionsDB or CopyTable(defaultOptions)
+    self.db = GBAOptionsDB
+    for i, f in pairs(defaultOptions) do
+      if self.db[i] == nil then
+        self.db[i] = f
+      end
+    end
     LastGoldCheck = _G.LastGoldCheck
-    OptionsDB = _G.OptionsDB or CopyTable(defaultOptions)
-    self.db = OptionsDB
-    createOptionsPanel()
-    --check for elvui
+    --options panel
+    self:createOptionsPanel()
+    --elvui load checked
     if (IsAddOnLoaded("ElvUI")) then
       ElvUILoaded = true
     end
-    EventFrame:UnregisterEvent("ADDON_LOADED")
-  elseif (event == "PLAYER_INTERACTION_MANAGER_FRAME_SHOW") then
-    if (arg1 == 10) then
-      createButtons()
-    end
-  elseif (event == "PLAYER_LOGOUT") then
-    _G.LastGoldCheck = LastGoldCheck
-    _G.OptionsDB = OptionsDB
+    self:UnregisterEvent(event)
   end
 end
 
-EventFrame:SetScript("OnEvent", eventParse)
+function EventFrame:PLAYER_INTERACTION_MANAGER_FRAME_SHOW(event, arg1)
+  if (arg1 == 10) then
+    createButtons()
+  end
+end
+
+function EventFrame:PLAYER_LOGOUT()
+_G.LastGoldCheck = LastGoldCheck
+--_G.OptionsDB = OptionsDB
+end
 
 SLASH_GUILDBANKAUDIT1 = "/guildbankaudit"
 SLASH_GUILDBANKAUDIT2 = "/gba"
@@ -315,62 +329,76 @@ function createButtons()
 end
 
 --create the options panel within the default interface menu
-function createOptionsPanel()
-  eventFrame.OptionsPanel = CreateFrame("Frame")
-  eventFrame.OptionsPanel.name = "Guild Bank Audit"
+function EventFrame:createOptionsPanel()
+  self.OptionsPanel = CreateFrame("Frame")
+  self.OptionsPanel.name = "Guild Bank Audit"
 
   --option1
-  local option1Text = eventFrame.OptionsPanel:CreateFontString("Option1Header", "OVERLAY", "GameFontNormalLarge")
-  option1Text:SetPoint("TOPLEFT", 15, -5)
+  local option1Text = self.OptionsPanel:CreateFontString("Option1Header", "OVERLAY", "GameFontNormalLarge")
+  option1Text:SetPoint("TOPLEFT", 0, 0)
   option1Text:SetText("Printout Slot 1")
 
-  local option1 = CreateFrame("Frame", "Option1Dropdown", eventFrame.OptionsPanel, "UIDropDownMenuTemplate")
+  local option1 = CreateFrame("Frame", "Option1Dropdown", self.OptionsPanel, "UIDropDownMenuTemplate")
   option1:SetPoint("TOPLEFT", option1Text, 0, -25)
   UIDropDownMenu_SetWidth(option1, 200)
   UIDropDownMenu_Initialize(option1, OptionsPanelDropdownMenu)
-  UIDropDownMenu_SetText(option1, OptionsDB.option1)
+  UIDropDownMenu_SetText(option1, GBAOptionsDB.option1)
 
   --option2
-  local option2Text = eventFrame.OptionsPanel:CreateFontString("Option2Header", "OVERLAY", "GameFontNormalLarge")
-  option2Text:SetPoint("TOPLEFT", option1, 0, -25)
+  local option2Text = self.OptionsPanel:CreateFontString("Option2Header", "OVERLAY", "GameFontNormalLarge")
+  option2Text:SetPoint("TOPLEFT", option1, 0, -35)
   option2Text:SetText("Printout Slot 2")
 
-  local option2 = CreateFrame("Frame", "Option2Dropdown", eventFrame.OptionsPanel, "UIDropDownMenuTemplate")
+  local option2 = CreateFrame("Frame", "Option2Dropdown", self.OptionsPanel, "UIDropDownMenuTemplate")
   option2:SetPoint("TOPLEFT", option2Text, 0, -25)
   UIDropDownMenu_SetWidth(option2, 200)
   UIDropDownMenu_Initialize(option2, OptionsPanelDropdownMenu)
   UIDropDownMenu_SetText(option2, output2)
 
   --option3
-  local option3Text = eventFrame.OptionsPanel:CreateFontString("Option3Header", "OVERLAY", "GameFontNormalLarge")
-  option3Text:SetPoint("TOPLEFT", option2, 0, -25)
+  local option3Text = self.OptionsPanel:CreateFontString("Option3Header", "OVERLAY", "GameFontNormalLarge")
+  option3Text:SetPoint("TOPLEFT", option2, 0, -35)
   option3Text:SetText("Printout Slot 3")
 
-  local option3 = CreateFrame("Frame", "Option3Dropdown", eventFrame.OptionsPanel, "UIDropDownMenuTemplate")
+  local option3 = CreateFrame("Frame", "Option3Dropdown", self.OptionsPanel, "UIDropDownMenuTemplate")
   option3:SetPoint("TOPLEFT", option3Text, 0, -25)
   UIDropDownMenu_SetWidth(option3, 200)
   UIDropDownMenu_Initialize(option3, OptionsPanelDropdownMenu)
   UIDropDownMenu_SetText(option3, output3)
 
   --option4
-  local option4Text = eventFrame.OptionsPanel:CreateFontString("Option4Header", "OVERLAY", "GameFontNormalLarge")
-  option4Text:SetPoint("TOPLEFT", option3, 0, -25)
+  local option4Text = self.OptionsPanel:CreateFontString("Option4Header", "OVERLAY", "GameFontNormalLarge")
+  option4Text:SetPoint("TOPLEFT", option3, 0, -35)
   option4Text:SetText("Printout Slot 4")
 
-  local option4 = CreateFrame("Frame", "Option4Dropdown", eventFrame.OptionsPanel, "UIDropDownMenuTemplate")
+  local option4 = CreateFrame("Frame", "Option4Dropdown", self.OptionsPanel, "UIDropDownMenuTemplate")
   option4:SetPoint("TOPLEFT", option4Text, 0, -25)
   UIDropDownMenu_SetWidth(option4, 200)
   UIDropDownMenu_Initialize(option4, OptionsPanelDropdownMenu)
   UIDropDownMenu_SetText(option4, output4)
 
   --money img toggle
-  local moneyCheck = CreateFrame("CheckButton", "OptionsMoneyCheckbox", eventFrame.OptionsPanel, "InterfaceOptionsCheckButtonTemplate")
-  moneyCheck:SetPoint("TOPLEFT",option4, 15, -30)
-  moneyCheck.Text:SetText("Display Money Scan Gold Icons")
-  moneyCheck:HookScript("OnClick", function(_, btn, down) OptionsDB.moneyImgToggle = moneyCheck:GetChecked() end)
+  local moneyCheck = self:CreateOptionsCheckbox("moneyImgToggle", "Display Money Scan Gold Icons", self.OptionsPanel)
+  moneyCheck:SetPoint("TOPLEFT",option4, 0, -40)
 
+  InterfaceOptions_AddCategory(self.OptionsPanel)
+end
 
-  InterfaceOptions_AddCategory(eventFrame.OptionsPanel)
+--for creating checkboxes
+function EventFrame:CreateOptionsCheckbox(option, label, parent, updateFunction)
+  local checkbox = CreateFrame("CheckButton", nil, parent, "InterfaceOptionsCheckButtonTemplate")
+  checkbox.Text:SetText(label)
+  local function UpdateOptions(value)
+    self.db[option] = value
+    checkbox:SetChecked(value)
+    if updateFunction then
+      updateFunction(value)
+    end
+  end
+  UpdateOptions(self.db[option])
+  checkbox:HookScript("OnClick", function(_, btn, down) UpdateOptions(checkbox:GetChecked()) end)
+  EventRegistry:RegisterCallback("GuildBankAudit.OnReset", function() UpdateOptions(self.defaultOptions[option]) end, checkbox)
+  return checkbox
 end
 
 --dropdown menu initializer function
