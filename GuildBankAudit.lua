@@ -3,8 +3,9 @@ local ItemsPerTab = 98
 local SavedItems = {}
 local SavedItemCounts = {}
 local LastGoldCheck
-local defaultOptions = {output1 = "test 1", output2 = "test 2", output3 = "test 3", output4 = "test 4", moneyImgToggle = false,}
+local defaultOptions = { moneyImgToggle = false, showWowhead = false, storeExtraMoneyLog = false, output1 = "test 1", output2 = "test 2", output3 = "test 3", output4 = "test 4", }
 local ElvUILoaded = false
+local wowheadLink = ""
 
 --event handling frame to make sure saved variables load and save properly
 eventFrame = CreateFrame("Frame", "EventFrame")
@@ -33,6 +34,11 @@ function EventFrame:ADDON_LOADED(event, addonName)
     --elvui load checked
     if (IsAddOnLoaded("ElvUI")) then
       ElvUILoaded = true
+    end
+    if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+      wowheadLink = "https://www.wowhead.com/item="
+    else
+      wowheadLink = "https://www.wowhead.com/cata/item="
     end
     self:UnregisterEvent(event)
   end
@@ -379,7 +385,15 @@ function EventFrame:createOptionsPanel()
 
   --money img toggle
   local moneyCheck = self:CreateOptionsCheckbox("moneyImgToggle", "Display Money Scan Gold Icons", self.OptionsPanel)
-  moneyCheck:SetPoint("TOPLEFT",option4, 0, -40)
+  moneyCheck:SetPoint("TOPLEFT", option4, 0, -40)
+
+  --wowhead links toggle
+  local wowheadToggle = self:CreateOptionsCheckbox("showWowhead", "Add Wowhead Links", self.OptionsPanel)
+  wowheadToggle:SetPoint("TOPLEFT", moneyCheck, 0, -40)
+
+  --extra money log storage toggle
+  local extraMoneyLog = self:CreateOptionsCheckbox("storeExtraMoneyLog", "Extend Money Log Storage", self.OptionsPanel)
+  extraMoneyLog:SetPoint("TopLeft", wowheadToggle, 0, -40)
 
   InterfaceOptions_AddCategory(self.OptionsPanel)
 end
