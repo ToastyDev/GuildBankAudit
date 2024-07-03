@@ -311,9 +311,13 @@ end
 
 -- create buttons on guild bank ui
 function createButtons()
-  local buttonFrame = CreateFrame("Button", "ScanButtonFrame", GuildBankFrame, "UIPanelButtonTemplate")
-  buttonFrame:SetPoint("TOPLEFT", 8, -30)
+  --local buttonFrame = CreateFrame("Button", "ScanButtonFrame", GuildBankFrame, "UIPanelButtonTemplate")
+  local buttonFrame = CreateFrame("Frame")
+  buttonFrame:SetParent(GuildBankFrame)
+  buttonFrame:SetSize(87, 22)
+  buttonFrame:SetPoint("TOPLEFT", 25, -42)
   buttonFrame:SetFrameLevel(4)
+  buttonFrame:Show()
 
   buttonFrame.ScanAll = CreateFrame("Button", "ScanAllButton", buttonFrame, "UIPanelButtonTemplate")
   buttonFrame.ScanAll:SetSize(87, 22)
