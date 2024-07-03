@@ -1,9 +1,10 @@
 local ItemsPerTab = 98
 
 local SavedItems = {}
+local SavedItemIDs = {}
 local SavedItemCounts = {}
 local LastGoldCheck
-local defaultOptions = { moneyImgToggle = false, showWowhead = false, storeExtraMoneyLog = false, output1 = "Name", output2 = "Count", output3 = "Wowhead Link", }
+local defaultOptions = { moneyImgToggle = false, showWowhead = true, storeExtraMoneyLog = false, output1 = "Name", output2 = "Count", output3 = "Wowhead Link", }
 local ElvUILoaded = false
 local wowheadLink = ""
 
@@ -94,6 +95,7 @@ function printHelp()
 end
 
 --scans the current tab the player is looking at
+-- default output = name, count, link
 function scanTab()
   wipe(SavedItems)
   wipe(SavedItemCounts)
@@ -104,10 +106,11 @@ function scanTab()
     local itemTex, itemCount, itemLocked, itemFiltered, itemQuality = GetGuildBankItemInfo(currentTab, i)
     local itemName = GetGuildBankItemLink(currentTab, i)
     if itemName ~= nil then
-      --local itemID = getItemID(itemName)
+      local itemID = getItemID(itemName)
       local cleanName = cleanString(itemName)
       if (checkTable(SavedItems, cleanName) ~= true) then
         tinsert(SavedItems, cleanName)
+        tinsert(SavedItemIDs, itemID)
         tinsert(SavedItemCounts, itemCount)
         tableCount = tableCount + 1
       else
@@ -118,7 +121,7 @@ function scanTab()
 
   local  outLength = getTableLength(SavedItems)
   for i = 1, outLength, 1 do
-    outText = outText .. SavedItems[i] .. ', ' .. SavedItemCounts[i] .. '\n'
+    outText = outText .. SavedItems[i] .. ', ' .. SavedItemCounts[i] .. ', ' .. wowheadLink .. SavedItemIDs[i] .. '\n'
   end
   print("|cff26c426Guild Bank Tab Audit Complete!|r")
   return outText
@@ -137,9 +140,11 @@ function scanBank()
       local itemTex, itemCount, itemLocked, itemFiltered, itemQuality = GetGuildBankItemInfo(i, k)
       local itemName = GetGuildBankItemLink(i, k)
       if itemName ~= nil then
+        local itemID = getItemID(itemName)
         local cleanName = cleanString(itemName)
         if (checkTable(SavedItems, cleanName) ~= true) then
           tinsert(SavedItems, cleanName)
+          tinsert(SavedItemIDs, itemID)
           tinsert(SavedItemCounts, itemCount)
           tableCount = tableCount + 1
         else
@@ -150,7 +155,7 @@ function scanBank()
   end
   local  outLength = getTableLength(SavedItems)
   for i = 1, outLength, 1 do
-    outText = outText .. SavedItems[i] .. ', ' .. SavedItemCounts[i] .. '\n'
+    outText = outText .. SavedItems[i] .. ', ' .. SavedItemCounts[i] .. ', ' .. wowheadLink .. SavedItemIDs[i] .. '\n'
   end
   print("|cff26c426Guild Bank Audit Complete!|r")
   return outText
