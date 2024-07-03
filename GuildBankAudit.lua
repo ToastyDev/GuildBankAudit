@@ -3,7 +3,7 @@ local ItemsPerTab = 98
 local SavedItems = {}
 local SavedItemCounts = {}
 local LastGoldCheck
-local defaultOptions = { moneyImgToggle = false, showWowhead = false, storeExtraMoneyLog = false, output1 = "test 1", output2 = "test 2", output3 = "test 3", output4 = "test 4", }
+local defaultOptions = { moneyImgToggle = false, showWowhead = false, storeExtraMoneyLog = false, output1 = "Name", output2 = "Count", output3 = "Wowhead Link", }
 local ElvUILoaded = false
 local wowheadLink = ""
 
@@ -104,6 +104,7 @@ function scanTab()
     local itemTex, itemCount, itemLocked, itemFiltered, itemQuality = GetGuildBankItemInfo(currentTab, i)
     local itemName = GetGuildBankItemLink(currentTab, i)
     if itemName ~= nil then
+      --local itemID = getItemID(itemName)
       local cleanName = cleanString(itemName)
       if (checkTable(SavedItems, cleanName) ~= true) then
         tinsert(SavedItems, cleanName)
@@ -124,6 +125,7 @@ function scanTab()
 end
 
 -- scans entire loaded guild bank (cannot load bank for you)
+-- default output = name, count, link
 function scanBank()
   wipe(SavedItems)
   wipe(SavedItemCounts)
@@ -372,28 +374,17 @@ function EventFrame:createOptionsPanel()
   UIDropDownMenu_Initialize(option3, OptionsPanelDropdownMenu)
   UIDropDownMenu_SetText(option3, output3)
 
-  --option4
-  local option4Text = self.OptionsPanel:CreateFontString("Option4Header", "OVERLAY", "GameFontNormalLarge")
-  option4Text:SetPoint("TOPLEFT", option3, 0, -35)
-  option4Text:SetText("Printout Slot 4")
-
-  local option4 = CreateFrame("Frame", "Option4Dropdown", self.OptionsPanel, "UIDropDownMenuTemplate")
-  option4:SetPoint("TOPLEFT", option4Text, 0, -25)
-  UIDropDownMenu_SetWidth(option4, 200)
-  UIDropDownMenu_Initialize(option4, OptionsPanelDropdownMenu)
-  UIDropDownMenu_SetText(option4, output4)
+  --wowhead links toggle
+  local wowheadToggle = self:CreateOptionsCheckbox("showWowhead", "Add Wowhead Links", self.OptionsPanel)
+  wowheadToggle:SetPoint("TOPLEFT", option3, 0, -40)
 
   --money img toggle
   local moneyCheck = self:CreateOptionsCheckbox("moneyImgToggle", "Display Money Scan Gold Icons", self.OptionsPanel)
-  moneyCheck:SetPoint("TOPLEFT", option4, 0, -40)
-
-  --wowhead links toggle
-  local wowheadToggle = self:CreateOptionsCheckbox("showWowhead", "Add Wowhead Links", self.OptionsPanel)
-  wowheadToggle:SetPoint("TOPLEFT", moneyCheck, 0, -40)
+  moneyCheck:SetPoint("TOPLEFT", wowheadToggle, 0, -40)
 
   --extra money log storage toggle
   local extraMoneyLog = self:CreateOptionsCheckbox("storeExtraMoneyLog", "Extend Money Log Storage", self.OptionsPanel)
-  extraMoneyLog:SetPoint("TopLeft", wowheadToggle, 0, -40)
+  extraMoneyLog:SetPoint("TopLeft", moneyCheck, 0, -40)
 
   InterfaceOptions_AddCategory(self.OptionsPanel)
 end
@@ -420,13 +411,11 @@ function OptionsPanelDropdownMenu(frame, level, menuList)
   local menuInfo = UIDropDownMenu_CreateInfo()
   menuInfo.func = OptionsPanelDropdownOnClick
 
-  menuInfo.text, menuInfo.arg1 = "Test Option 1", 1
+  menuInfo.text, menuInfo.arg1 = "Name", 1
   UIDropDownMenu_AddButton(menuInfo)
-  menuInfo.text, menuInfo.arg1 = "Test Option 2", 2
+  menuInfo.text, menuInfo.arg1 = "Count", 2
   UIDropDownMenu_AddButton(menuInfo)
-  menuInfo.text, menuInfo.arg1 = "Test Option 3", 3
-  UIDropDownMenu_AddButton(menuInfo)
-  menuInfo.text, menuInfo.arg1 = "Test Option 4", 4
+  menuInfo.text, menuInfo.arg1 = "Wowhead Link", 3
   UIDropDownMenu_AddButton(menuInfo)
 end
 
@@ -435,7 +424,6 @@ function OptionsPanelDropdownOnClick(self, arg1, arg2, checked)
   if arg1 == 1 then
   elseif arg1 == 2 then
   elseif arg1 == 3 then
-  elseif arg1 == 4 then
   end
 end
 
