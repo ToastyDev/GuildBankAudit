@@ -312,9 +312,6 @@ end
 -- create buttons on guild bank ui
 function createButtons()
   local buttonFrame = CreateFrame("Button", "ScanButtonFrame", GuildBankFrame, "UIPanelButtonTemplate")
-  if ElvUILoaded == true then
-    buttonFrame:StripTextures()
-  end
   buttonFrame:SetPoint("TOPLEFT", 8, -30)
   buttonFrame:SetFrameLevel(4)
 
@@ -325,6 +322,7 @@ function createButtons()
   buttonFrame.ScanAll:RegisterForClicks("LeftButtonUp")
   buttonFrame.ScanAll:SetScript("OnClick", function() GetGBAFrame(scanBank()) end)
   if ElvUILoaded == true then
+    buttonFrame.ScanAll:StripTextures()
     buttonFrame.ScanAll:StyleButton()
     buttonFrame.ScanAll:SetTemplate(nil, true)
   end
@@ -337,6 +335,7 @@ function createButtons()
   buttonFrame.ScanTab:RegisterForClicks("LeftButtonUp")
   buttonFrame.ScanTab:SetScript("OnClick", function() GetGBAFrame(scanTab()) end)
   if ElvUILoaded == true then
+    buttonFrame.ScanTab:StripTextures()
     buttonFrame.ScanTab:StyleButton()
     buttonFrame.ScanTab:SetTemplate(nil, true)
   end
@@ -349,6 +348,7 @@ function createButtons()
   buttonFrame.ScanMoney:RegisterForClicks("LeftButtonUp")
   buttonFrame.ScanMoney:SetScript("OnClick", function() GetGBAFrame(getMoneyLog()) end)
   if ElvUILoaded == true then
+    buttonFrame.ScanMoney:StripTextures()
     buttonFrame.ScanMoney:StyleButton()
     buttonFrame.ScanMoney:SetTemplate(nil, true)
   end
