@@ -99,6 +99,7 @@ end
 function scanTab()
   wipe(SavedItems)
   wipe(SavedItemCounts)
+  wipe(SavedItemIDs)
   local tableCount = 0
   local outText = ''
   local currentTab = GetCurrentGuildBankTab()
@@ -120,8 +121,14 @@ function scanTab()
   end
 
   local  outLength = getTableLength(SavedItems)
-  for i = 1, outLength, 1 do
-    outText = outText .. SavedItems[i] .. ', ' .. SavedItemCounts[i] .. ', ' .. wowheadLink .. SavedItemIDs[i] .. '\n'
+  if GBAOptionsDB.showWowhead == true then
+    for i = 1, outLength, 1 do
+      outText = outText .. SavedItems[i] .. ', ' .. SavedItemCounts[i] .. ', ' .. wowheadLink .. SavedItemIDs[i] .. '\n'
+    end
+  else
+    for i = 1, outLength, 1 do
+      outText = outText .. SavedItems[i] .. ', ' .. SavedItemCounts[i] .. '\n'
+    end
   end
   print("|cff26c426Guild Bank Tab Audit Complete!|r")
   return outText
@@ -132,6 +139,7 @@ end
 function scanBank()
   wipe(SavedItems)
   wipe(SavedItemCounts)
+  wipe(SavedItemIDs)
   local tableCount = 0
   local outText = ''
   local numTabs = GetNumGuildBankTabs()
@@ -154,8 +162,14 @@ function scanBank()
     end
   end
   local  outLength = getTableLength(SavedItems)
-  for i = 1, outLength, 1 do
-    outText = outText .. SavedItems[i] .. ', ' .. SavedItemCounts[i] .. ', ' .. wowheadLink .. SavedItemIDs[i] .. '\n'
+  if GBAOptionsDB.showWowhead == true then
+    for i = 1, outLength, 1 do
+      outText = outText .. SavedItems[i] .. ', ' .. SavedItemCounts[i] .. ', ' .. wowheadLink .. SavedItemIDs[i] .. '\n'
+    end
+  else
+    for i = 1, outLength, 1 do
+      outText = outText .. SavedItems[i] .. ', ' .. SavedItemCounts[i] .. '\n'
+    end
   end
   print("|cff26c426Guild Bank Audit Complete!|r")
   return outText
