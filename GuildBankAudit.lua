@@ -3,7 +3,9 @@ local ItemsPerTab = 98
 local SavedItems = {}
 local SavedItemIDs = {}
 local SavedItemCounts = {}
+local PendingMoneyLog = {}
 local LastGoldCheck
+local MostRecentMoneyLogEntry
 local defaultOptions = { moneyImgToggle = false, showWowhead = true, storeExtraMoneyLog = false, output1 = "Name", output2 = "Count", output3 = "Wowhead Link", }
 local ElvUILoaded = false
 local wowheadLink = ""
@@ -30,6 +32,7 @@ function EventFrame:ADDON_LOADED(event, addonName)
       end
     end
     LastGoldCheck = _G.LastGoldCheck
+    MostRecentMoneyLogEntry = _G.MostRecentMoneyLogEntry
     --options panel
     self:createOptionsPanel()
     --elvui load checked
@@ -53,6 +56,7 @@ end
 
 function EventFrame:PLAYER_LOGOUT()
 _G.LastGoldCheck = LastGoldCheck
+_G.MostRecentMoneyLogEntry = MostRecentMoneyLogEntry
 --_G.OptionsDB = OptionsDB
 end
 
@@ -181,12 +185,17 @@ function getMoneyLog()
   local numTabs = GetNumGuildBankTabs()
   local guildBankMoney = GetGuildBankMoney()
   local moneyDifference = 0
+  wipe(PendingMoneyLog)
 
   if LastGoldCheck == nil then
     LastGoldCheck = guildBankMoney
   end
 
-  local cleanGuildBankMoney = GetCoinText(guildBankMoney, ", ")
+  if (GBAOptiosDB.moneyImgToggle == true) then
+    local cleanGuildBankMoney = GetCoinText(guildBankMoney, ", ")
+  else
+    local cleanGuildBankMoney = GetMoneyString(guildBankMoney)
+  end
   outText = outText .. "Current: " .. cleanGuildBankMoney .. "\n"
 
   if guildBankMoney ~= LastGoldCheck then
@@ -199,7 +208,11 @@ function getMoneyLog()
       moneyDifference = LastGoldCheck - guildBankMoney
       bitString = '-'
     end
-    moneyDifference = GetCoinText(moneyDifference, ", ")
+    if (GBAOptiosDB.moneyImgToggle == true) then
+      moneyDifference = GetMoneyString(moneyDifference)
+    else
+      moneyDifference = GetCoinText(moneyDifference, ", ")
+    end
     outText = outText .. "Difference from last audit: " .. bitString .. moneyDifference .. "\n"
   else
     outText = outText .. "Difference from last audit: 0" .. "\n"
@@ -210,7 +223,11 @@ function getMoneyLog()
   local tableCount = 0
   for i = numMoneyTransactions, 1, -1 do
     local typeString, player, amount, dateYear, dateMonth, dateDay, dateHour = GetGuildBankMoneyTransaction(i)
-    amount = GetCoinText(amount, ", ")
+    if (GBAOptiosDB.moneyImgToggle == true) then
+      amount = GetMoneyString(amount)
+    else
+      amount = GetCoinText(amount, ", ")
+    end
 
     if typeString == 'buyTab' then
       typeString = 'buys tab'
@@ -255,6 +272,12 @@ function getMoneyLog()
         outText = outText .. dateYear .. " year ago" .. "\n"
       end
     end
+  end
+
+  if GBAOptionsDB.storeExtraMoneyLog == true then
+    local saveToLogList
+
+
   end
 
   LastGoldCheck = guildBankMoney
@@ -311,7 +334,6 @@ end
 
 -- create buttons on guild bank ui
 function createButtons()
-  --local buttonFrame = CreateFrame("Button", "ScanButtonFrame", GuildBankFrame, "UIPanelButtonTemplate")
   local buttonFrame = CreateFrame("Frame")
   buttonFrame:SetParent(GuildBankFrame)
   buttonFrame:SetSize(87, 22)
@@ -365,41 +387,41 @@ function EventFrame:createOptionsPanel()
   self.OptionsPanel.name = "Guild Bank Audit"
 
   --option1
-  local option1Text = self.OptionsPanel:CreateFontString("Option1Header", "OVERLAY", "GameFontNormalLarge")
-  option1Text:SetPoint("TOPLEFT", 0, 0)
-  option1Text:SetText("Printout Slot 1")
+  --local option1Text = self.OptionsPanel:CreateFontString("Option1Header", "OVERLAY", "GameFontNormalLarge")
+  --option1Text:SetPoint("TOPLEFT", 0, 0)
+  --option1Text:SetText("Printout Slot 1")
 
-  local option1 = CreateFrame("Frame", "Option1Dropdown", self.OptionsPanel, "UIDropDownMenuTemplate")
-  option1:SetPoint("TOPLEFT", option1Text, 0, -25)
-  UIDropDownMenu_SetWidth(option1, 200)
-  UIDropDownMenu_Initialize(option1, OptionsPanelDropdownMenu)
-  UIDropDownMenu_SetText(option1, GBAOptionsDB.option1)
+  --local option1 = CreateFrame("Frame", "Option1Dropdown", self.OptionsPanel, "UIDropDownMenuTemplate")
+  --option1:SetPoint("TOPLEFT", option1Text, 0, -25)
+  --UIDropDownMenu_SetWidth(option1, 200)
+  --UIDropDownMenu_Initialize(option1, OptionsPanelDropdownMenu)
+  --UIDropDownMenu_SetText(option1, GBAOptionsDB.option1)
 
   --option2
-  local option2Text = self.OptionsPanel:CreateFontString("Option2Header", "OVERLAY", "GameFontNormalLarge")
-  option2Text:SetPoint("TOPLEFT", option1, 0, -35)
-  option2Text:SetText("Printout Slot 2")
+  --local option2Text = self.OptionsPanel:CreateFontString("Option2Header", "OVERLAY", "GameFontNormalLarge")
+  --option2Text:SetPoint("TOPLEFT", option1, 0, -35)
+  --option2Text:SetText("Printout Slot 2")
 
-  local option2 = CreateFrame("Frame", "Option2Dropdown", self.OptionsPanel, "UIDropDownMenuTemplate")
-  option2:SetPoint("TOPLEFT", option2Text, 0, -25)
-  UIDropDownMenu_SetWidth(option2, 200)
-  UIDropDownMenu_Initialize(option2, OptionsPanelDropdownMenu)
-  UIDropDownMenu_SetText(option2, output2)
+  --local option2 = CreateFrame("Frame", "Option2Dropdown", self.OptionsPanel, "UIDropDownMenuTemplate")
+  --option2:SetPoint("TOPLEFT", option2Text, 0, -25)
+  --UIDropDownMenu_SetWidth(option2, 200)
+  --UIDropDownMenu_Initialize(option2, OptionsPanelDropdownMenu)
+  --UIDropDownMenu_SetText(option2, output2)
 
   --option3
-  local option3Text = self.OptionsPanel:CreateFontString("Option3Header", "OVERLAY", "GameFontNormalLarge")
-  option3Text:SetPoint("TOPLEFT", option2, 0, -35)
-  option3Text:SetText("Printout Slot 3")
+  --local option3Text = self.OptionsPanel:CreateFontString("Option3Header", "OVERLAY", "GameFontNormalLarge")
+  --option3Text:SetPoint("TOPLEFT", option2, 0, -35)
+  --option3Text:SetText("Printout Slot 3")
 
-  local option3 = CreateFrame("Frame", "Option3Dropdown", self.OptionsPanel, "UIDropDownMenuTemplate")
-  option3:SetPoint("TOPLEFT", option3Text, 0, -25)
-  UIDropDownMenu_SetWidth(option3, 200)
-  UIDropDownMenu_Initialize(option3, OptionsPanelDropdownMenu)
-  UIDropDownMenu_SetText(option3, output3)
+  --local option3 = CreateFrame("Frame", "Option3Dropdown", self.OptionsPanel, "UIDropDownMenuTemplate")
+  --option3:SetPoint("TOPLEFT", option3Text, 0, -25)
+  --UIDropDownMenu_SetWidth(option3, 200)
+  --UIDropDownMenu_Initialize(option3, OptionsPanelDropdownMenu)
+  --UIDropDownMenu_SetText(option3, output3)
 
   --wowhead links toggle
   local wowheadToggle = self:CreateOptionsCheckbox("showWowhead", "Add Wowhead Links", self.OptionsPanel)
-  wowheadToggle:SetPoint("TOPLEFT", option3, 0, -40)
+  wowheadToggle:SetPoint("TOPLEFT", 0, 0)
 
   --money img toggle
   local moneyCheck = self:CreateOptionsCheckbox("moneyImgToggle", "Display Money Scan Gold Icons", self.OptionsPanel)
@@ -430,25 +452,25 @@ function EventFrame:CreateOptionsCheckbox(option, label, parent, updateFunction)
 end
 
 --dropdown menu initializer function
-function OptionsPanelDropdownMenu(frame, level, menuList)
-  local menuInfo = UIDropDownMenu_CreateInfo()
-  menuInfo.func = OptionsPanelDropdownOnClick
+--function OptionsPanelDropdownMenu(frame, level, menuList)
+--  local menuInfo = UIDropDownMenu_CreateInfo()
+--  menuInfo.func = OptionsPanelDropdownOnClick
 
-  menuInfo.text, menuInfo.arg1 = "Name", 1
-  UIDropDownMenu_AddButton(menuInfo)
-  menuInfo.text, menuInfo.arg1 = "Count", 2
-  UIDropDownMenu_AddButton(menuInfo)
-  menuInfo.text, menuInfo.arg1 = "Wowhead Link", 3
-  UIDropDownMenu_AddButton(menuInfo)
-end
+--  menuInfo.text, menuInfo.arg1 = "Name", 1
+--  UIDropDownMenu_AddButton(menuInfo)
+--  menuInfo.text, menuInfo.arg1 = "Count", 2
+--  UIDropDownMenu_AddButton(menuInfo)
+--  menuInfo.text, menuInfo.arg1 = "Wowhead Link", 3
+--  UIDropDownMenu_AddButton(menuInfo)
+--end
 
 --click handler for options dropdowns
-function OptionsPanelDropdownOnClick(self, arg1, arg2, checked)
-  if arg1 == 1 then
-  elseif arg1 == 2 then
-  elseif arg1 == 3 then
-  end
-end
+--function OptionsPanelDropdownOnClick(self, arg1, arg2, checked)
+--  if arg1 == 1 then
+--  elseif arg1 == 2 then
+--  elseif arg1 == 3 then
+--  end
+--end
 
 -- create the output frame
 function GetGBAFrame(input)
