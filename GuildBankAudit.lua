@@ -191,10 +191,11 @@ function getMoneyLog()
     LastGoldCheck = guildBankMoney
   end
 
-  if (GBAOptiosDB.moneyImgToggle == true) then
-    local cleanGuildBankMoney = GetCoinText(guildBankMoney, ", ")
+  local cleanGuildBankMoney
+  if (GBAOptionsDB.moneyImgToggle == true) then
+    cleanGuildBankMoney = GetMoneyString(guildBankMoney)
   else
-    local cleanGuildBankMoney = GetMoneyString(guildBankMoney)
+    cleanGuildBankMoney = GetCoinText(guildBankMoney, ", ")
   end
   outText = outText .. "Current: " .. cleanGuildBankMoney .. "\n"
 
@@ -208,7 +209,7 @@ function getMoneyLog()
       moneyDifference = LastGoldCheck - guildBankMoney
       bitString = '-'
     end
-    if (GBAOptiosDB.moneyImgToggle == true) then
+    if (GBAOptionsDB.moneyImgToggle == true) then
       moneyDifference = GetMoneyString(moneyDifference)
     else
       moneyDifference = GetCoinText(moneyDifference, ", ")
@@ -223,7 +224,7 @@ function getMoneyLog()
   local tableCount = 0
   for i = numMoneyTransactions, 1, -1 do
     local typeString, player, amount, dateYear, dateMonth, dateDay, dateHour = GetGuildBankMoneyTransaction(i)
-    if (GBAOptiosDB.moneyImgToggle == true) then
+    if (GBAOptionsDB.moneyImgToggle == true) then
       amount = GetMoneyString(amount)
     else
       amount = GetCoinText(amount, ", ")
