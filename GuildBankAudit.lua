@@ -4,6 +4,7 @@ local SavedItems = {}
 local SavedItemIDs = {}
 local SavedItemCounts = {}
 local PendingMoneyLog = {}
+local ExtendedMoneyLog = {}
 local LastGoldCheck
 local MostRecentMoneyLogEntry
 local defaultOptions = { moneyImgToggle = false, showWowhead = true, storeExtraMoneyLog = false, output1 = "Name", output2 = "Count", output3 = "Wowhead Link", }
@@ -33,6 +34,7 @@ function EventFrame:ADDON_LOADED(event, addonName)
     end
     LastGoldCheck = _G.LastGoldCheck
     MostRecentMoneyLogEntry = _G.MostRecentMoneyLogEntry
+    ExtendedMoneyLog = _G.ExtendedMoneyLog
     --options panel
     self:createOptionsPanel()
     --elvui load checked
@@ -57,6 +59,7 @@ end
 function EventFrame:PLAYER_LOGOUT()
 _G.LastGoldCheck = LastGoldCheck
 _G.MostRecentMoneyLogEntry = MostRecentMoneyLogEntry
+_G.ExtendedMoneyLog = ExtendedMoneyLog
 --_G.OptionsDB = OptionsDB
 end
 
@@ -278,12 +281,17 @@ function getMoneyLog()
   if GBAOptionsDB.storeExtraMoneyLog == true then
     local saveToLogList
 
-
+    print("|cff26c426Extending Money Log!|r")
   end
 
   LastGoldCheck = guildBankMoney
   print("|cff26c426Guild Money Log Audit Complete!|r")
   return outText
+end
+
+function clearSavedLog()
+  wipe(ExtendedMoneyLog)
+  print("|cff26c426Extended Money Log has been wiped!|r")
 end
 ---------------------------------------------
 --                UTILITY                  --
@@ -430,7 +438,18 @@ function EventFrame:createOptionsPanel()
 
   --extra money log storage toggle
   local extraMoneyLog = self:CreateOptionsCheckbox("storeExtraMoneyLog", "Extend Money Log Storage", self.OptionsPanel)
-  extraMoneyLog:SetPoint("TopLeft", moneyCheck, 0, -40)
+  extraMoneyLog:SetPoint("TOPLEFT", moneyCheck, 0, -40)
+
+  local clearSavedLogBtn = CreateFrame("Button", "ClearSaveLogButton", self.OptionsPanel, "UIPanelButtonTemplate")
+  clearSavedLogBtn:SetPoint("TOPLEFT", extraMoneyLog, 50, -40)
+  clearSavedLogBtn:SetText("Reset Saved Log")
+  clearSavedLogBtn:SetWidth(120)
+  clearSavedLogBtn:SetScript("OnClick", function() clearSavedLog() end)
+  if ElvUILoaded == true then
+    clearSavedLogBtn:StripTextures()
+    clearSavedLogBtn:StyleButton()
+    clearSavedLogBtn:SetTemplate(nil, true)
+  end
 
   InterfaceOptions_AddCategory(self.OptionsPanel)
 end
