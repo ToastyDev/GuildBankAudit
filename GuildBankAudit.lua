@@ -7,7 +7,7 @@ local PendingMoneyLog = {}
 local ExtendedMoneyLog = {}
 local LastGoldCheck
 local MostRecentMoneyLogEntry
-local defaultOptions = { moneyImgToggle = false, showWowhead = true, storeExtraMoneyLog = false, output1 = "Name", output2 = "Count", output3 = "Wowhead Link", }
+local defaultOptions = { moneyImgToggle = false, showWowhead = true, storeExtraMoneyLog = false, storeMoneyLogTimes = false,}
 local ElvUILoaded = false
 local wowheadLink = ""
 
@@ -257,33 +257,36 @@ function getMoneyLog()
       MostRecentMoneyLogEntry = logEntry
     end
 
-    if (dateYear == 0) and (dateMonth == 0) and (dateDay == 0) then
-      if dateHour == 0 then
-        logEntry = logEntry .. "less than an hour ago" .. "\n"
+    if GBAOptionsDB.storeMoneyLogTimes == true then
+      if (dateYear == 0) and (dateMonth == 0) and (dateDay == 0) then
+        if dateHour == 0 then
+          logEntry = logEntry .. "less than an hour ago" .. "\n"
+        else
+          logEntry = logEntry .. dateHour .. " hours ago" .. "\n"
+        end
+      elseif (dateYear == 0) and (dateMonth == 0) then
+        if dateDay > 1 then
+          logEntry = logEntry .. dateDay .. " days ago" .. "\n"
+        else
+          logEntry = logEntry .. dateDay .. " day ago" .. "\n"
+        end
+      elseif (dateYear == 0) then
+        if dateMonth > 1 then
+          logEntry = logEntry .. dateMonth .. " months ago" .. "\n"
+        else
+          logEntry = logEntry .. dateMonth .. " month ago" .. "\n"
+        end
       else
-        logEntry = logEntry .. dateHour .. "hours ago" .. "\n"
-      end
-    elseif (dateYear == 0) and (dateMonth == 0) then
-      if dateDay > 1 then
-        logEntry = logEntry .. dateDay .. "days ago" .. "\n"
-      else
-        logEntry = logEntry .. dateDay .. "day ago" .. "\n"
-      end
-    elseif (dateYear == 0) then
-      if dateMonth > 1 then
-        logEntry = logEntry .. dateMonth .. "months ago" .. "\n"
-      else
-        logEntry = logEntry .. dateMonth .. "month ago" .. "\n"
+        if  dateYear > 1 then
+          logEntry = logEntry .. dateYear .. " years ago" .. "\n"
+        else
+          logEntry = logEntry .. dateYear .. " year ago" .. "\n"
+        end
       end
     else
-      if  dateYear > 1 then
-        logEntry = logEntry .. dateYear .. "years ago" .. "\n"
-      else
-        logEntry = logEntry .. dateYear .. "year ago" .. "\n"
-      end
+      logEntry = logEntry .. "\n"
     end
     tinsert(PendingMoneyLog, logEntry)
-    print(logEntry)
     outText = outText .. logEntry
   end
 
@@ -292,12 +295,17 @@ function getMoneyLog()
   if GBAOptionsDB.storeExtraMoneyLog == true then
     local saveToLogList = {}
     local savedLogLength = getTableLength(ExtendedMoneyLog)
-    
+
     for entry in pairs(PendingMoneyLog) do
 
     end
 
-
+    --i think i might do this by adding a block with a date/time and a divider
+    -- could maybe check each new entry against the saved list and only add if its not a duplicate?
+    -- both have tradeoffs
+    -- blocks will have duplicates
+    -- checks will inevitably discard some
+    -- both will fail to account for things outside blizzards log
 
     print("|cff26c426Extending Money Log!|r")
   end
@@ -455,9 +463,13 @@ function EventFrame:createOptionsPanel()
   local moneyCheck = self:CreateOptionsCheckbox("moneyImgToggle", "Display Money Scan Gold Icons", self.OptionsPanel)
   moneyCheck:SetPoint("TOPLEFT", wowheadToggle, 0, -40)
 
+  --money log date storage toggle
+  local moneyDateCheck = self:CreateOptionsCheckbox("storeMoneyLogTimes", "Save Money Log Times", self.OptionsPanel)
+  moneyDateCheck:SetPoint("TOPLEFT", moneyCheck, 0, -40)
+
   --extra money log storage toggle
   local extraMoneyLog = self:CreateOptionsCheckbox("storeExtraMoneyLog", "Extend Money Log Storage |cffff0000(EXPERIMENTAL)|r", self.OptionsPanel)
-  extraMoneyLog:SetPoint("TOPLEFT", moneyCheck, 0, -40)
+  extraMoneyLog:SetPoint("TOPLEFT", moneyDateCheck, 0, -40)
 
   local clearSavedLogBtn = CreateFrame("Button", "ClearSaveLogButton", self.OptionsPanel, "UIPanelButtonTemplate")
   clearSavedLogBtn:SetPoint("TOPLEFT", extraMoneyLog, 40, -40)
