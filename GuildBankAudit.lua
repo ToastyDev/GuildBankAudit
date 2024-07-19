@@ -225,6 +225,8 @@ function getMoneyLog()
   QueryGuildBankLog(numTabs + 1)
   local numMoneyTransactions = GetNumGuildBankMoneyTransactions()
   local tableCount = 0
+  local logEntry
+
   for i = numMoneyTransactions, 1, -1 do
     local typeString, player, amount, dateYear, dateMonth, dateDay, dateHour = GetGuildBankMoneyTransaction(i)
     if (GBAOptionsDB.moneyImgToggle == true) then
@@ -246,40 +248,56 @@ function getMoneyLog()
     end
 
     if player ~= nil then
-      outText = outText .. player .. " " .. typeString .. " " .. amount .. " "
+      logEntry = player .. " " .. typeString .. " " .. amount .. " "
     else
-      outText = outText .. typeString .. " " .. amount .. " "
+      logEntry = typeString .. " " .. amount .. " "
+    end
+
+    if (i == 1) then
+      MostRecentMoneyLogEntry = logEntry
     end
 
     if (dateYear == 0) and (dateMonth == 0) and (dateDay == 0) then
       if dateHour == 0 then
-        outText = outText .. " less than an hour ago" .. "\n"
+        logEntry = logEntry .. "less than an hour ago" .. "\n"
       else
-        outText = outText .. dateHour .. " hours ago" .. "\n"
+        logEntry = logEntry .. dateHour .. "hours ago" .. "\n"
       end
     elseif (dateYear == 0) and (dateMonth == 0) then
       if dateDay > 1 then
-        outText = outText .. dateDay .. " days ago" .. "\n"
+        logEntry = logEntry .. dateDay .. "days ago" .. "\n"
       else
-        outText = outText .. dateDay .. " day ago" .. "\n"
+        logEntry = logEntry .. dateDay .. "day ago" .. "\n"
       end
     elseif (dateYear == 0) then
       if dateMonth > 1 then
-        outText = outText .. dateMonth .. " months ago" .. "\n"
+        logEntry = logEntry .. dateMonth .. "months ago" .. "\n"
       else
-        outText = outText .. dateMonth .. " month ago" .. "\n"
+        logEntry = logEntry .. dateMonth .. "month ago" .. "\n"
       end
     else
       if  dateYear > 1 then
-        outText = outText .. dateYear .. " years ago" .. "\n"
+        logEntry = logEntry .. dateYear .. "years ago" .. "\n"
       else
-        outText = outText .. dateYear .. " year ago" .. "\n"
+        logEntry = logEntry .. dateYear .. "year ago" .. "\n"
       end
     end
+    tinsert(PendingMoneyLog, logEntry)
+    print(logEntry)
+    outText = outText .. logEntry
   end
 
+  --add old loop here if needed
+
   if GBAOptionsDB.storeExtraMoneyLog == true then
-    local saveToLogList
+    local saveToLogList = {}
+    local savedLogLength = getTableLength(ExtendedMoneyLog)
+    
+    for entry in pairs(PendingMoneyLog) do
+
+    end
+
+
 
     print("|cff26c426Extending Money Log!|r")
   end
@@ -293,6 +311,7 @@ function clearSavedLog()
   wipe(ExtendedMoneyLog)
   print("|cff26c426Extended Money Log has been wiped!|r")
 end
+
 ---------------------------------------------
 --                UTILITY                  --
 ---------------------------------------------
@@ -437,11 +456,11 @@ function EventFrame:createOptionsPanel()
   moneyCheck:SetPoint("TOPLEFT", wowheadToggle, 0, -40)
 
   --extra money log storage toggle
-  local extraMoneyLog = self:CreateOptionsCheckbox("storeExtraMoneyLog", "Extend Money Log Storage", self.OptionsPanel)
+  local extraMoneyLog = self:CreateOptionsCheckbox("storeExtraMoneyLog", "Extend Money Log Storage |cffff0000(EXPERIMENTAL)|r", self.OptionsPanel)
   extraMoneyLog:SetPoint("TOPLEFT", moneyCheck, 0, -40)
 
   local clearSavedLogBtn = CreateFrame("Button", "ClearSaveLogButton", self.OptionsPanel, "UIPanelButtonTemplate")
-  clearSavedLogBtn:SetPoint("TOPLEFT", extraMoneyLog, 50, -40)
+  clearSavedLogBtn:SetPoint("TOPLEFT", extraMoneyLog, 40, -40)
   clearSavedLogBtn:SetText("Reset Saved Log")
   clearSavedLogBtn:SetWidth(120)
   clearSavedLogBtn:SetScript("OnClick", function() clearSavedLog() end)
