@@ -253,7 +253,7 @@ function getMoneyLog()
       logEntry = typeString .. " " .. amount .. " "
     end
 
-    if (i == 1) then
+    if (i == numMoneyTransactions) then
       MostRecentMoneyLogEntry = logEntry
     end
 
@@ -293,19 +293,47 @@ function getMoneyLog()
   --add old loop here if needed
 
   if GBAOptionsDB.storeExtraMoneyLog == true then
-    local saveToLogList = {}
-    local savedLogLength = getTableLength(ExtendedMoneyLog)
-
-    for entry in pairs(PendingMoneyLog) do
-
-    end
-
     --i think i might do this by adding a block with a date/time and a divider
     -- could maybe check each new entry against the saved list and only add if its not a duplicate?
     -- both have tradeoffs
     -- blocks will have duplicates
     -- checks will inevitably discard some
     -- both will fail to account for things outside blizzards log
+
+    -- check for a match of last pending transaction against the saved transactions
+    -- return the number of the loop then add using that return as the loop size
+
+    if next(ExtendedMoneyLog) == nil then
+      ExtendedMoneyLog = PendingMoneyLog
+      print("empty")
+    else --extended is not empty
+      print("not empty")
+      local savedLogLength = getTableLength(ExtendedMoneyLog)
+      local counter = 0
+      local temp = MostRecentMoneyLogEntry .. "\n"
+
+      for i = 1, savedLogLength, 1 do
+        if ExtendedMoneyLog[i] == temp then
+          counter = i
+          break
+        end
+      end
+
+      print("counter = " .. counter)
+      print(ExtendedMoneyLog[counter])
+      print("savedLogLength = " .. savedLogLength)
+
+      if counter == 1 then
+        counter = getTableLength(PendingMoneyLog)
+        for i = 1, counter, 1 do
+          tinsert(ExtendedMoneyLog, PendingMoneyLog[i])
+        end
+      else
+        for i = 1S, counter, 1 do
+          tinsert(ExtendedMoneyLog, PendingMoneyLog[i])
+        end
+      end
+    end
 
     print("|cff26c426Extending Money Log!|r")
   end
@@ -315,6 +343,7 @@ function getMoneyLog()
   return outText
 end
 
+--deletes the log if the user would like to
 function clearSavedLog()
   wipe(ExtendedMoneyLog)
   print("|cff26c426Extended Money Log has been wiped!|r")
