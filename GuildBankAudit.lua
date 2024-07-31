@@ -310,7 +310,8 @@ function getMoneyLog()
       print("not empty")
       local savedLogLength = getTableLength(ExtendedMoneyLog)
       local counter = 0
-      local temp = MostRecentMoneyLogEntry .. "\n"
+      --local temp = MostRecentMoneyLogEntry .. "\n"
+      local temp = PendingMoneyLog[1]
 
       for i = 1, savedLogLength, 1 do
         if ExtendedMoneyLog[i] == temp then
