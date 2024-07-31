@@ -6,7 +6,6 @@ local SavedItemCounts = {}
 local PendingMoneyLog = {}
 local ExtendedMoneyLog = {}
 local LastGoldCheck
-local MostRecentMoneyLogEntry
 local defaultOptions = { moneyImgToggle = false, showWowhead = true, storeExtraMoneyLog = false, storeMoneyLogTimes = false,}
 local ElvUILoaded = false
 local wowheadLink = ""
@@ -33,7 +32,6 @@ function EventFrame:ADDON_LOADED(event, addonName)
       end
     end
     LastGoldCheck = _G.LastGoldCheck
-    MostRecentMoneyLogEntry = _G.MostRecentMoneyLogEntry
     ExtendedMoneyLog = _G.ExtendedMoneyLog
     --options panel
     self:createOptionsPanel()
@@ -58,7 +56,6 @@ end
 
 function EventFrame:PLAYER_LOGOUT()
 _G.LastGoldCheck = LastGoldCheck
-_G.MostRecentMoneyLogEntry = MostRecentMoneyLogEntry
 _G.ExtendedMoneyLog = ExtendedMoneyLog
 --_G.OptionsDB = OptionsDB
 end
@@ -253,10 +250,6 @@ function getMoneyLog()
       logEntry = typeString .. " " .. amount .. " "
     end
 
-    if (i == numMoneyTransactions) then
-      MostRecentMoneyLogEntry = logEntry
-    end
-
     if GBAOptionsDB.storeMoneyLogTimes == true then
       if (dateYear == 0) and (dateMonth == 0) and (dateDay == 0) then
         if dateHour == 0 then
@@ -293,16 +286,8 @@ function getMoneyLog()
   --add old loop here if needed
 
   if GBAOptionsDB.storeExtraMoneyLog == true then
-    --i think i might do this by adding a block with a date/time and a divider
-    -- could maybe check each new entry against the saved list and only add if its not a duplicate?
-    -- both have tradeoffs
-    -- blocks will have duplicates
-    -- checks will inevitably discard some
-    -- both will fail to account for things outside blizzards log
-
-    -- check for a match of last pending transaction against the saved transactions
-    -- return the number of the loop then add using that return as the loop size
-
+    --This is experimental. Highly experimental.
+    --Chunks of the log will be missing as the addon can only store what is seen, and blizzard only stores 25 entries at a time.
     if next(ExtendedMoneyLog) == nil then
       ExtendedMoneyLog = PendingMoneyLog
       print("empty")
@@ -310,44 +295,32 @@ function getMoneyLog()
       print("not empty")
       local savedLogLength = getTableLength(ExtendedMoneyLog)
       local counter = 0
-      --local temp = MostRecentMoneyLogEntry .. "\n"
-      local temp = PendingMoneyLog[1]
+      local temp = ExtendedMoneyLog[1]
 
-      for i = 1, savedLogLength, 1 do
-        if ExtendedMoneyLog[i] == temp then
+      for i = 1, getTableLength(PendingMoneyLog), 1 do
+        if PendingMoneyLog[i] == temp then
           counter = i
           break
         end
       end
 
       print("counter = " .. counter)
-      print(ExtendedMoneyLog[counter])
+      print(PendingMoneyLog[counter])
       print("savedLogLength = " .. savedLogLength)
 
-      local tempLogHold = ExtendedMoneyLog
-      --try: make a temp holder of the extended money log, wipe the extended money log
-      -- add the pending as needed, then loop through the temp extended and insert back in
-      if counter == 0 then -- add all pending?
+      if counter == 0 then -- add all pending
         counter = getTableLength(PendingMoneyLog)
-        wipe(ExtendedMoneyLog)
-        for i = 1, counter, 1 do
-          tinsert(ExtendedMoneyLog, PendingMoneyLog[i])
+        for i = counter, 1, -1 do
+          tinsert(ExtendedMoneyLog, 1, PendingMoneyLog[i])
         end
-        for i = 1, getTableLength(tempLogHold), 1 do
-          tinsert(ExtendedMoneyLog, tempLogHold[i])
-        end
-      elseif counter >= 2 then
-        wipe(ExtendedMoneyLog)
-        for i = 1, counter, 1 do
-          tinsert(ExtendedMoneyLog, PendingMoneyLog[i])
-        end
-        for i = 1, getTableLength(tempLogHold), 1 do
-          tinsert(ExtendedMoneyLog, tempLogHold[i])
+      elseif counter >= 2 then --add all up to counter
+        for i = counter - 1, 1, -1 do
+          tinsert(ExtendedMoneyLog, 1, PendingMoneyLog[i])
         end
       end
     end
 
-    print("|cff26c426Extending Money Log!|r")
+    print("|cff26c426Adding to the Extended Money Log!|r")
   end
 
   LastGoldCheck = guildBankMoney
