@@ -463,39 +463,6 @@ function EventFrame:createOptionsPanel()
   self.OptionsPanel = CreateFrame("Frame")
   self.OptionsPanel.name = "Guild Bank Audit"
 
-  --option1
-  --local option1Text = self.OptionsPanel:CreateFontString("Option1Header", "OVERLAY", "GameFontNormalLarge")
-  --option1Text:SetPoint("TOPLEFT", 0, 0)
-  --option1Text:SetText("Printout Slot 1")
-
-  --local option1 = CreateFrame("Frame", "Option1Dropdown", self.OptionsPanel, "UIDropDownMenuTemplate")
-  --option1:SetPoint("TOPLEFT", option1Text, 0, -25)
-  --UIDropDownMenu_SetWidth(option1, 200)
-  --UIDropDownMenu_Initialize(option1, OptionsPanelDropdownMenu)
-  --UIDropDownMenu_SetText(option1, GBAOptionsDB.option1)
-
-  --option2
-  --local option2Text = self.OptionsPanel:CreateFontString("Option2Header", "OVERLAY", "GameFontNormalLarge")
-  --option2Text:SetPoint("TOPLEFT", option1, 0, -35)
-  --option2Text:SetText("Printout Slot 2")
-
-  --local option2 = CreateFrame("Frame", "Option2Dropdown", self.OptionsPanel, "UIDropDownMenuTemplate")
-  --option2:SetPoint("TOPLEFT", option2Text, 0, -25)
-  --UIDropDownMenu_SetWidth(option2, 200)
-  --UIDropDownMenu_Initialize(option2, OptionsPanelDropdownMenu)
-  --UIDropDownMenu_SetText(option2, output2)
-
-  --option3
-  --local option3Text = self.OptionsPanel:CreateFontString("Option3Header", "OVERLAY", "GameFontNormalLarge")
-  --option3Text:SetPoint("TOPLEFT", option2, 0, -35)
-  --option3Text:SetText("Printout Slot 3")
-
-  --local option3 = CreateFrame("Frame", "Option3Dropdown", self.OptionsPanel, "UIDropDownMenuTemplate")
-  --option3:SetPoint("TOPLEFT", option3Text, 0, -25)
-  --UIDropDownMenu_SetWidth(option3, 200)
-  --UIDropDownMenu_Initialize(option3, OptionsPanelDropdownMenu)
-  --UIDropDownMenu_SetText(option3, output3)
-
   --wowhead links toggle
   local wowheadToggle = self:CreateOptionsCheckbox("showWowhead", "Add Wowhead Links", self.OptionsPanel)
   wowheadToggle:SetPoint("TOPLEFT", 0, 0)
@@ -542,27 +509,6 @@ function EventFrame:CreateOptionsCheckbox(option, label, parent, updateFunction)
   EventRegistry:RegisterCallback("GuildBankAudit.OnReset", function() UpdateOptions(self.defaultOptions[option]) end, checkbox)
   return checkbox
 end
-
---dropdown menu initializer function
---function OptionsPanelDropdownMenu(frame, level, menuList)
---  local menuInfo = UIDropDownMenu_CreateInfo()
---  menuInfo.func = OptionsPanelDropdownOnClick
-
---  menuInfo.text, menuInfo.arg1 = "Name", 1
---  UIDropDownMenu_AddButton(menuInfo)
---  menuInfo.text, menuInfo.arg1 = "Count", 2
---  UIDropDownMenu_AddButton(menuInfo)
---  menuInfo.text, menuInfo.arg1 = "Wowhead Link", 3
---  UIDropDownMenu_AddButton(menuInfo)
---end
-
---click handler for options dropdowns
---function OptionsPanelDropdownOnClick(self, arg1, arg2, checked)
---  if arg1 == 1 then
---  elseif arg1 == 2 then
---  elseif arg1 == 3 then
---  end
---end
 
 -- create the output frame
 function GetGBAFrame(input)
