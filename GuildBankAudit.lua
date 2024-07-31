@@ -323,14 +323,25 @@ function getMoneyLog()
       print(ExtendedMoneyLog[counter])
       print("savedLogLength = " .. savedLogLength)
 
-      if counter == 1 then
+      local tempLogHold = ExtendedMoneyLog
+      --try: make a temp holder of the extended money log, wipe the extended money log
+      -- add the pending as needed, then loop through the temp extended and insert back in
+      if counter == 0 then -- add all pending?
         counter = getTableLength(PendingMoneyLog)
+        wipe(ExtendedMoneyLog)
         for i = 1, counter, 1 do
           tinsert(ExtendedMoneyLog, PendingMoneyLog[i])
         end
-      else
-        for i = 1S, counter, 1 do
+        for i = 1, getTableLength(tempLogHold), 1 do
+          tinsert(ExtendedMoneyLog, tempLogHold[i])
+        end
+      elseif counter >= 2 then
+        wipe(ExtendedMoneyLog)
+        for i = 1, counter, 1 do
           tinsert(ExtendedMoneyLog, PendingMoneyLog[i])
+        end
+        for i = 1, getTableLength(tempLogHold), 1 do
+          tinsert(ExtendedMoneyLog, tempLogHold[i])
         end
       end
     end
@@ -340,6 +351,20 @@ function getMoneyLog()
 
   LastGoldCheck = guildBankMoney
   print("|cff26c426Guild Money Log Audit Complete!|r")
+  return outText
+end
+
+--displays the extended money log
+function showExtendedMoneyLog()
+  local outText = ''
+  if next(ExtendedMoneyLog) ~= nil then
+    local length = getTableLength(ExtendedMoneyLog)
+    for i = 1, length, 1 do
+      outText = outText .. ExtendedMoneyLog[i]
+    end
+  else
+    outText = "Extended Money Log is empty!"
+  end
   return outText
 end
 
@@ -444,6 +469,19 @@ function createButtons()
     buttonFrame.ScanMoney:SetTemplate(nil, true)
   end
   buttonFrame.ScanMoney:SetFrameLevel(4)
+
+  buttonFrame.ExtendedMoney = CreateFrame("Button", "ExtendedMoneyButton", buttonFrame, "UIPanelButtonTemplate")
+  buttonFrame.ExtendedMoney:SetSize(102, 22)
+  buttonFrame.ExtendedMoney:SetText("Extended Money")
+  buttonFrame.ExtendedMoney:SetPoint("BOTTOMLEFT", GuildBankFrame.bg.Center, 0, -23)
+  buttonFrame.ExtendedMoney:RegisterForClicks("LeftButtonUp")
+  buttonFrame.ExtendedMoney:SetScript("OnClick", function() GetGBAFrame(showExtendedMoneyLog()) end)
+  if ElvUILoaded == true then
+    buttonFrame.ExtendedMoney:StripTextures()
+    buttonFrame.ExtendedMoney:StyleButton()
+    buttonFrame.ExtendedMoney:SetTemplate(nil, true)
+  end
+  buttonFrame.ExtendedMoney:SetFrameLevel(4)
 end
 
 --create the options panel within the default interface menu
