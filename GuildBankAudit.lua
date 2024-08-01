@@ -9,6 +9,8 @@ local LastGoldCheck
 local defaultOptions = { moneyImgToggle = false, showWowhead = true, storeExtraMoneyLog = false, storeMoneyLogTimes = false,}
 local ElvUILoaded = false
 local wowheadLink = ""
+local RETAIL_CLIENT = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+local CLASSIC_CLIENT = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 
 --event handling frame to make sure saved variables load and save properly
 eventFrame = CreateFrame("Frame", "EventFrame")
@@ -32,18 +34,20 @@ function EventFrame:ADDON_LOADED(event, addonName)
       end
     end
     LastGoldCheck = _G.LastGoldCheck
-    ExtendedMoneyLog = _G.ExtendedMoneyLog
-    --options panel
-    self:createOptionsPanel()
+    if ExtendedMoneyLog ~= nil then
+      ExtendedMoneyLog = _G.ExtendedMoneyLog
+    end
     --elvui load checked
-    if (IsAddOnLoaded("ElvUI")) then
+    if (C_AddOns.IsAddOnLoaded("ElvUI")) then
       ElvUILoaded = true
     end
-    if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+    if RETAIL_CLIENT then
       wowheadLink = "https://www.wowhead.com/item="
     else
       wowheadLink = "https://www.wowhead.com/cata/item="
     end
+    --options panel
+    self:createOptionsPanel()
     self:UnregisterEvent(event)
   end
 end
@@ -75,7 +79,11 @@ function SlashCmdList.GUILDBANKAUDIT(cmd, editbox)
   elseif request == "money" then
     GetGBAFrame(getMoneyLog())
   elseif request == "options" then
-    InterfaceOptionsFrame_OpenToCategory(eventFrame.OptionsPanel)
+    if RETAIL_CLIENT then
+      Settings.OpenToCategory(eventFrame.OptionsPanel.SettingsCategoryID)
+    else
+      InterfaceOptionsFrame_OpenToCategory(eventFrame.OptionsPanel)
+    end
   elseif request  == "help" then
     printHelp()
   elseif request == "bugged" then
@@ -283,16 +291,12 @@ function getMoneyLog()
     outText = outText .. logEntry
   end
 
-  --add old loop here if needed
-
   if GBAOptionsDB.storeExtraMoneyLog == true then
     --This is experimental. Highly experimental.
     --Chunks of the log will be missing as the addon can only store what is seen, and blizzard only stores 25 entries at a time.
-    if next(ExtendedMoneyLog) == nil then
+    if ExtendedMoneyLog == nil then --empty log
       ExtendedMoneyLog = PendingMoneyLog
-      print("empty")
     else --extended is not empty
-      print("not empty")
       local savedLogLength = getTableLength(ExtendedMoneyLog)
       local counter = 0
       local temp = ExtendedMoneyLog[1]
@@ -303,10 +307,6 @@ function getMoneyLog()
           break
         end
       end
-
-      print("counter = " .. counter)
-      print(PendingMoneyLog[counter])
-      print("savedLogLength = " .. savedLogLength)
 
       if counter == 0 then -- add all pending
         counter = getTableLength(PendingMoneyLog)
@@ -331,7 +331,7 @@ end
 --displays the extended money log
 function showExtendedMoneyLog()
   local outText = ''
-  if next(ExtendedMoneyLog) ~= nil then
+  if ExtendedMoneyLog ~= nil then
     local length = getTableLength(ExtendedMoneyLog)
     for i = 1, length, 1 do
       outText = outText .. ExtendedMoneyLog[i]
@@ -447,7 +447,11 @@ function createButtons()
   buttonFrame.ExtendedMoney = CreateFrame("Button", "ExtendedMoneyButton", buttonFrame, "UIPanelButtonTemplate")
   buttonFrame.ExtendedMoney:SetSize(102, 22)
   buttonFrame.ExtendedMoney:SetText("Extended Money")
-  buttonFrame.ExtendedMoney:SetPoint("BOTTOMLEFT", GuildBankFrame.bg.Center, 0, -23)
+  if RETAIL_CLIENT then
+    buttonFrame.ExtendedMoney:SetPoint("BOTTOMLEFT", GuildBankFrame.BlackBG, 0, -23)
+  else
+    buttonFrame.ExtendedMoney:SetPoint("BOTTOMLEFT", GuildBankFrame.bg.Center, 0, -23)
+  end
   buttonFrame.ExtendedMoney:RegisterForClicks("LeftButtonUp")
   buttonFrame.ExtendedMoney:SetScript("OnClick", function() GetGBAFrame(showExtendedMoneyLog()) end)
   if ElvUILoaded == true then
@@ -463,21 +467,32 @@ function EventFrame:createOptionsPanel()
   self.OptionsPanel = CreateFrame("Frame")
   self.OptionsPanel.name = "Guild Bank Audit"
 
+  --tww changes
+  if RETAIL_CLIENT then
+    local category = Settings.RegisterCanvasLayoutCategory(self.OptionsPanel, self.OptionsPanel.name)
+    Settings.RegisterCategory(category)
+    self.OptionsPanel.SettingsCategoryID = category:GetID()
+  end
+
   --wowhead links toggle
   local wowheadToggle = self:CreateOptionsCheckbox("showWowhead", "Add Wowhead Links", self.OptionsPanel)
   wowheadToggle:SetPoint("TOPLEFT", 0, 0)
+  wowheadToggle.tooltip = "Adds a wowhead link to the scan output."
 
   --money img toggle
   local moneyCheck = self:CreateOptionsCheckbox("moneyImgToggle", "Display Money Scan Gold Icons", self.OptionsPanel)
   moneyCheck:SetPoint("TOPLEFT", wowheadToggle, 0, -40)
+  moneyCheck.tooltip = "Adds the icons for the currency types to the money log output."
 
   --money log date storage toggle
-  local moneyDateCheck = self:CreateOptionsCheckbox("storeMoneyLogTimes", "Save Money Log Times", self.OptionsPanel)
+  local moneyDateCheck = self:CreateOptionsCheckbox("storeMoneyLogTimes", "Display Money Log Times", self.OptionsPanel)
   moneyDateCheck:SetPoint("TOPLEFT", moneyCheck, 0, -40)
+  moneyDateCheck.tooltip = "Adds the Blizzard style time stamps to the money log output."
 
   --extra money log storage toggle
   local extraMoneyLog = self:CreateOptionsCheckbox("storeExtraMoneyLog", "Extend Money Log Storage |cffff0000(EXPERIMENTAL)|r", self.OptionsPanel)
   extraMoneyLog:SetPoint("TOPLEFT", moneyDateCheck, 0, -40)
+  extraMoneyLog.tooltip = "|cffff0000(EXPERIMENTAL)|r Saves the money log output to an extended log. The scan can only see what Blizzard shows in the guild bank. Best run often to avoid missing entries."
 
   local clearSavedLogBtn = CreateFrame("Button", "ClearSaveLogButton", self.OptionsPanel, "UIPanelButtonTemplate")
   clearSavedLogBtn:SetPoint("TOPLEFT", extraMoneyLog, 40, -40)
@@ -490,12 +505,14 @@ function EventFrame:createOptionsPanel()
     clearSavedLogBtn:SetTemplate(nil, true)
   end
 
-  InterfaceOptions_AddCategory(self.OptionsPanel)
+  if CLASSIC_CLIENT then
+    InterfaceOptions_AddCategory(self.OptionsPanel)
+  end
 end
 
 --for creating checkboxes
 function EventFrame:CreateOptionsCheckbox(option, label, parent, updateFunction)
-  local checkbox = CreateFrame("CheckButton", nil, parent, "InterfaceOptionsCheckButtonTemplate")
+  local checkbox = CreateFrame("CheckButton", nil, parent, "ChatConfigCheckButtonTemplate")
   checkbox.Text:SetText(label)
   local function UpdateOptions(value)
     self.db[option] = value
