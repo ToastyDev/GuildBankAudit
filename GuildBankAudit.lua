@@ -10,7 +10,6 @@ local defaultOptions = { moneyImgToggle = false, showWowhead = true, storeExtraM
 local ElvUILoaded = false
 local wowheadLink = ""
 local RETAIL_CLIENT = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local CLASSIC_CLIENT = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 
 --event handling frame to make sure saved variables load and save properly
 eventFrame = CreateFrame("Frame", "EventFrame")
@@ -79,9 +78,9 @@ function SlashCmdList.GUILDBANKAUDIT(cmd, editbox)
   elseif request == "money" then
     GetGBAFrame(getMoneyLog())
   elseif request == "options" then
-    if RETAIL_CLIENT then
+    if Settings and Settings.OpenToCategory then
       Settings.OpenToCategory(eventFrame.OptionsPanel.SettingsCategoryID)
-    else
+    elseif _G.InterfaceOptionsFrame_OpenToCategory then
       InterfaceOptionsFrame_OpenToCategory(eventFrame.OptionsPanel)
     end
   elseif request  == "help" then
@@ -401,7 +400,7 @@ function createButtons()
   local buttonFrame = CreateFrame("Frame")
   buttonFrame:SetParent(GuildBankFrame)
   buttonFrame:SetSize(87, 22)
-  buttonFrame:SetPoint("TOPLEFT", 25, -42)
+  buttonFrame:SetPoint("BOTTOMRIGHT", -295, -15)
   buttonFrame:SetFrameLevel(4)
   buttonFrame:Show()
 
@@ -445,13 +444,9 @@ function createButtons()
   buttonFrame.ScanMoney:SetFrameLevel(4)
 
   buttonFrame.ExtendedMoney = CreateFrame("Button", "ExtendedMoneyButton", buttonFrame, "UIPanelButtonTemplate")
-  buttonFrame.ExtendedMoney:SetSize(102, 22)
+  buttonFrame.ExtendedMoney:SetSize(115, 22)
   buttonFrame.ExtendedMoney:SetText("Extended Money")
-  if RETAIL_CLIENT then
-    buttonFrame.ExtendedMoney:SetPoint("BOTTOMLEFT", GuildBankFrame.BlackBG, 0, -23)
-  else
-    buttonFrame.ExtendedMoney:SetPoint("BOTTOMLEFT", GuildBankFrame.bg.Center, 0, -23)
-  end
+  buttonFrame.ExtendedMoney:SetPoint("BOTTOMLEFT",  buttonFrame.ScanMoney, "BOTTOMRIGHT")
   buttonFrame.ExtendedMoney:RegisterForClicks("LeftButtonUp")
   buttonFrame.ExtendedMoney:SetScript("OnClick", function() GetGBAFrame(showExtendedMoneyLog()) end)
   if ElvUILoaded == true then
@@ -468,7 +463,7 @@ function EventFrame:createOptionsPanel()
   self.OptionsPanel.name = "Guild Bank Audit"
 
   --tww changes
-  if RETAIL_CLIENT then
+  if Settings and Settings.RegisterCanvasLayoutCategory then
     local category = Settings.RegisterCanvasLayoutCategory(self.OptionsPanel, self.OptionsPanel.name)
     Settings.RegisterCategory(category)
     self.OptionsPanel.SettingsCategoryID = category:GetID()
@@ -505,7 +500,7 @@ function EventFrame:createOptionsPanel()
     clearSavedLogBtn:SetTemplate(nil, true)
   end
 
-  if CLASSIC_CLIENT then
+  if _G.InterfaceOptions_AddCategory then
     InterfaceOptions_AddCategory(self.OptionsPanel)
   end
 end
