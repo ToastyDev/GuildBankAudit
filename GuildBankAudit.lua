@@ -400,7 +400,7 @@ function createButtons()
   local buttonFrame = CreateFrame("Frame")
   buttonFrame:SetParent(GuildBankFrame)
   buttonFrame:SetSize(87, 22)
-  buttonFrame:SetPoint("BOTTOMRIGHT", -295, -15)
+  buttonFrame:SetPoint("BOTTOMRIGHT", -295, -22)
   buttonFrame:SetFrameLevel(4)
   buttonFrame:Show()
 
