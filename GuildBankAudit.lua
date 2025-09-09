@@ -43,7 +43,7 @@ function EventFrame:ADDON_LOADED(event, addonName)
     if RETAIL_CLIENT then
       wowheadLink = "https://www.wowhead.com/item="
     else
-      wowheadLink = "https://www.wowhead.com/cata/item="
+      wowheadLink = "https://www.wowhead.com/mop-classic/item="
     end
     --options panel
     self:createOptionsPanel()
